@@ -1,0 +1,103 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using WebApplication2.Models;
+
+namespace WebApplication2.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        
+        private readonly UsersDbContext _context;
+
+        public HomeController(ILogger<HomeController> logger, UsersDbContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> User()
+        {
+            var users = await _context.Users.ToListAsync();
+            return View(users);
+        }
+
+        public IActionResult CreateUser() {
+
+            return View();
+        }
+
+        public async Task<IActionResult> CreateUserForm(User model)
+        {
+            public async Task<IActionResult> CreateUser(UserModel model)
+            {
+                if (string.IsNullOrEmpty(model.Username) ||
+                    string.IsNullOrEmpty(model.FirstName) ||
+                    string.IsNullOrEmpty(model.LastName) ||
+                    string.IsNullOrEmpty(model.Email) ||
+                    string.IsNullOrEmpty(model.Password))
+                {
+                    // Set a message in the ViewBag to display in the view
+                    ViewBag.Message = "FILL ALL FIELDS";
+
+                    // Return the view with the model (useful if you want to retain entered data)
+                    return View("CreateUser", model);
+                }
+
+                await _context.Users.AddAsync(model);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index");
+            }
+
+
+            public async Task<IActionResult> OneUser(string username, string password, bool rememberMe)
+        {
+
+            if (rememberMe)
+            {
+                string query = $"SELECT * FROM public.\"Users\" WHERE \"Username\" = '{username}' AND \"Password\" = '{password}'";
+                var modelData = await _context.Users.FromSqlRaw(query).ToListAsync();
+                return View(modelData);
+            }
+            else
+            {
+                var modelData = await _context.Users
+                    .Where(x => x.Username == username && x.Password == password).ToListAsync();
+                return View(modelData);
+            }
+        }
+
+        public IActionResult FindUser() {
+
+            return View();
+        }
+
+        public IActionResult FindUserForm(LoginViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
+            {
+                return View("FindUser");
+            }
+
+            return RedirectToAction("OneUser", new { username = model.Username, password = model.Password, rememberMe = model.RememberMe });
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "User";
+}
+
+@model List<User>
+
+<div class="text-center">
+    <h1 class="display-4">LISTA</h1>
+</div>
+<table class="table">
+    <tr>
+        <th>Id</th>
+        <th>Username</th>
+        <th>Password</th>
+        <th>FirstName</th>
+        <th>LastName</th>
+        <th>Email</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Username</td>
+            <td>@item.Password</td>
+            <td>@item.FirstName</td>
+            <td>@item.LastName</td>
+            <td>@item.Email</td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,89 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using WebApplication2.Models;
+
+namespace WebApplication2.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        
+        private readonly UsersDbContext _context;
+
+        public HomeController(ILogger<HomeController> logger, UsersDbContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult User()
+        {
+            var users = _context.Users.ToList();
+            return View(users);
+        }
+
+        public IActionResult CreateUser() {
+
+            return View();
+        }
+
+        public IActionResult CreateUserForm(User model)
+        {
+            _context.Users.Add(model);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult OneUser(int userId, bool ranjivost)
+        {
+            var model = _context.Users.FirstOrDefault(x => x.Id == userId);
+            if (model == null) {
+                return View("FindUser");
+            }
+            if (ranjivost)
+            {
+model.RememberMe = true;
+            }   
+
+            return View(model);
+        }
+
+        public IActionResult FindUser() {
+
+            var users = _context.Users.ToList();
+
+            foreach (var user in users)
+            {
+                user.RememberMe = false;
+            }
+            return View();
+        }
+
+        public IActionResult FindUserForm(string username, string password,  bool ranjivost)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.Username == username && x.Password == password);
+            if (user == null)
+            {
+                return View("FindUser");
+            }
+            return RedirectToAction("OneUser", new { userId = user.Id, ranjivost = ranjivost });
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

@@ -1,0 +1,99 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using WebApplication2.Models;
+
+namespace WebApplication2.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        
+        private readonly UsersDbContext _context;
+
+        public HomeController(ILogger<HomeController> logger, UsersDbContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> User()
+        {
+            var users = await _context.Users.ToListAsync();
+            return View(users);
+        }
+
+        public IActionResult CreateUser() {
+
+            return View();
+        }
+
+        public async Task<IActionResult> CreateUserForm(User model)
+        {
+            await _context.Users.AddAsync(model);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        public async IActionResult OneUser(LoginViewModel model)
+        {
+            
+            string username = model.Username;
+            string password = model.Password;
+            bool rememberMe = model.RememberMe;
+
+            Console.WriteLine(rememberMe);
+
+            if (rememberMe)
+            {
+                string query = $"SELECT * FROM Users WHERE Username = '{username}' AND Password = '{password}'";
+                var modelData = _context.Users.FromSqlRaw(query).ToList();
+                return View(modelData);
+            }
+            else
+            {
+                var modelData = _context.Users
+                    .Where(x => x.Username == username && x.Password == password)
+                    .ToList();
+                return View(modelData);
+            }
+        }
+    
+
+    public IActionResult FindUser() {
+
+            return View();
+        }
+
+        public IActionResult FindUserForm(LoginViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.Username) || string.IsNullOrEmpty(model.Password))
+            {
+                return View("FindUser");
+            }
+
+            var data = new object[] { model.Username, model.Password, model.RememberMe };
+
+            Console.WriteLine(data);
+
+            return RedirectToAction("OneUser", data);
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

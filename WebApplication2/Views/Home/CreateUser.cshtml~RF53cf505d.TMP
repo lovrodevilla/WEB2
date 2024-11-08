@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Create/EDIT User";
+    var message = ViewBag.Message as string;
+}
+
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-warning">
+        @message
+    </div>
+}
+
+@model WebApplication2.Models.CreateUser
+
+
+<div class="text-center">
+    <h1 class="display-4">CREATE USER</h1>
+</div>
+
+<form asp-action="CreateUserForm" asp-controller="Home">
+    <div>
+        <label class="mt-4">
+            <input type="checkbox" name="RememberMe" asp-for="RememberMe" /> Ranjivost uključena
+        </label>
+    </div>
+
+    <label>Id</label>
+    <input class="form-control" type="number" placeholder="0" asp-for="Id" />
+    <label class="mt-4">Username</label>
+    <input class="form-control" type="text" placeholder="Username" asp-for="Username" />
+    <label class="mt-4">Password</label>
+    <input class="form-control" type="password" placeholder="Password" asp-for="Password" />
+    <label class="mt-4">FirstName</label>
+    <input class="form-control" type="text" placeholder="FirstName" asp-for="FirstName" />
+    <label class="mt-4">LastName</label>
+    <input class="form-control" type="text" placeholder="LastName" asp-for="LastName" />
+    <label class="mt-4">Email</label>
+    <input class="form-control" type="email" placeholder="Email" asp-for="Email" />
+
+    <button class="btn btn-primary mt-4", type="submit">OK</button>
+</form>
